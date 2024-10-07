@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  redis:
+    image: "redis:alpine"
+  
+  celery:
+    build: .
+    volumes:
+      - .:/app
+    command: celery -A tasks worker --loglevel=info
+    depends_on:
+      - redis
+
+  flower:
+    build: .
+    volumes:
+      - .:/app
+    command: celery -A tasks flower --broker=redis://redis:6379/0
+    ports:
+      - "5555:5555"
+    depends_on:
+      - redis
